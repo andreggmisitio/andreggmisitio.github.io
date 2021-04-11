@@ -2,109 +2,341 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport"
-    content="width=device-width,
-       initial-scale=1.0">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>
-    Ejemplo de Polimorfismo
+    Juego
   </title>
+  <link rel="stylesheet" href="/css/estilo.css">
+  <link rel="icon" href="Runa.ico">
   <script>
-    function aleatorio(menor,
-      mayor) {
-      return menor + Math.floor(
-        Math.random() *
-        (mayor - menor + 1));
-    }
     /** @interface */
     class SeMueve {
       muévete() {
         throw new Error("intf");
       }
     }
+
     /** @implements {SeMueve} */
-    class PerroWeb
+    class Batman
       extends HTMLElement {
       connectedCallback() {
-        this.x = 0;
+        this.x = window.innerWidth/2;
         this.y = 0;
-        this.innerHTML = "🐕";
-        this.style.position =
-          "fixed";
-        this.style.fontSize =
-          "2rem";
-        this.style.right =
-          `${this.x}px`;
-        this.style.bottom =
-          `${this.y}px`;
+        this.innerHTML = "<img src=\"/imagen/batman.png\" width=\"200px\" height=\"80px\">";
+        this.style.position = "fixed";
+        this.style.fontSize = "2rem";
+        this.style.right = `${this.x}px`;
+        this.style.bottom = `${this.y}px`;
+        this.moverIzquierda = false;
+        this.moverDerecha = false;
       }
+
+      get obtenerX(){
+        return this.x;
+      }
+
       muévete() {
-        this.x = (this.x + 30) %
-          window.innerWidth;
-        this.style.right =
-          `${this.x}px`;
+        //IZQUIERDA
+        if(this.moverIzquierda){
+          this.x = (this.x + 15) % window.innerWidth;
+          console.log(this.x,window.innerWidth);
+          this.style.right = `${this.x}px`;
+        }
+      
+        //DERECHA
+        if(this.moverDerecha){
+          this.x = (this.x - 15);
+          if(this.x < -200){
+            this.x = window.innerWidth - 200;   
+          }
+          console.log(this.x,window.innerWidth);
+          this.style.right = `${this.x}px`;
+        }      
       }
     }
-    customElements.define(
-      "perro-web", PerroWeb);
-    /** @implements {SeMueve} */
-    class ÁguilaWeb
+    customElements.define("batman-web", Batman);
+
+
+
+    class Batarang
       extends HTMLElement {
-      connectedCallback() {
-        this.x = aleatorio(0,
-          Math.floor(
-            window.innerWidth));
-        this.y = aleatorio(0,
-          Math.floor(window.
-            innerHeight));
-        this.innerHTML = "🦅";
-        this.style.position =
-          "fixed";
-        this.style.fontSize =
-          "2.5rem";
-        this.style.left =
-          `${this.x}px`;
-        this.style.top =
-          `${this.y}px`;
+      constructor(batmanx){
+        super();
+        this.x = batmanx;
       }
+      
+      connectedCallback() {
+        this.y = 30;
+        this.innerHTML = "<img src=\"/imagen/batarang.png\" width=\"100px\" height=\"40px\">";
+        this.style.position = "fixed";
+        this.style.fontSize = "2rem";
+        this.style.right = `${this.x}px`;
+        this.style.bottom = `${this.y}px`;
+      }
+
+      checarBorde(){
+        if(this.y > window.innerHeight){
+          console.log("Salio del borde")
+          return true;
+        }
+      }
+
       muévete() {
-        this.y = (this.y + 10) %
-          window.innerHeight;
-        this.style.top =
-          `${this.y}px`;
+        this.y = (this.y + 15);
+        this.style.bottom = `${this.y}px`;  
       }
     }
-    customElements.define(
-      "aguila-web", ÁguilaWeb);
+    customElements.define("batarang-web", Batarang);
+
+    /** @implements {SeMueve} */
+    class Joker
+      extends HTMLElement {
+      constructor(jokerx,jokery,velocidad){
+        super();
+        this.x = jokerx;
+        this.y = jokery;
+        this.velocidad = velocidad;
+      }
+      
+      connectedCallback() {
+        this.innerHTML = "<img src=\"/imagen/joker.png\" width=\"140px\" height=\"60px\">";
+        this.style.position = "fixed";
+        this.style.fontSize = "2.5rem";
+        this.style.left = `${this.x}px`;
+        this.style.top = `${this.y}px`;
+        this.paso = 30;
+      }
+
+      checarOrillas(){
+        if((this.x+200) >= window.innerWidth || this.x < 0){
+          return true;
+        }
+        return false;
+      }
+
+      bajarJoker(){
+        this.y = this.y+(this.paso*this.velocidad);
+        this.style.top = `${this.y}px`;
+      }
+
+      muévete(direccion) {
+        this.x = this.x + (10*direccion);
+        this.style.left = `${this.x}px`;
+      }
+    }
+    customElements.define("joker-web", Joker);
   </script>
+  
 </head>
 <body>
-  <h1>
-    Ejemplo de Polimorfismo
-  </h1>
-  <p>
-    <button onclick="mueve();">
-      Mueve
-    </button>
-  </p>
-  <footer>
+  <div class="instruccionesInicio" id="quitarInicio">
+    <h2>Jokers Invaders</h2>
+    <h4 class="instrucciones">
+      Intrucciones: Utiliza las flechas izquierda y derecha para moverte, dispara batarangs con espacio.
+    </h4>
+    <button class="boton" onclick="quitar();">Iniciar</button>
     <p>
-      &copy; 2020
+      &copy; 2021
       Carlos André González Guijosa.
     </p>
-  </footer>
+  </div>
+  <div class="instruccionesFinal" id="volverIniciar">
+    <h4 class="instrucciones">
+      El juego ha terminado, ¿quieres volver a jugar?
+    </h4>
+    <button class="boton" onclick="volverAJugar();">Volver a jugar</button>
+  </div>
+  <div class="puntuacion" id="puntuacion">
+    <p>
+      Nivel: <span class="nivel" id="nivel">1</span>
+      Score: <span class="total" id="total">0</span>
+    </p>
+  </div>
+ 
   <script>
-    const figuras =
-      [new ÁguilaWeb(),
-      new PerroWeb(),
-      new ÁguilaWeb()];
-    for (let fig of figuras) {
-      document.body.append(fig);
+    let quitarInicio = document.getElementById("quitarInicio");
+    let volverJugar = document.getElementById("volverIniciar");
+
+    let todosBatarang = [];
+    let todosJokers = [];
+    let puntuacion = 0;
+    let nivelActual = 1;
+    let total = document.getElementById("total");
+    let nivel = document.getElementById("nivel");
+    let direccionJokers = 1;
+    let letretoPuntuacion = document.getElementById("puntuacion");
+    let batman = new Batman(); 
+    let velocidadJokers = 1;
+    let posFondoActual = -1;
+    let fondos = [
+      'gotham1.jpg','gotham2.jpg','gotham.jpg'
+    ];
+
+    
+    function quitar(){
+      quitarInicio.style.display = "none";
+      iniciar();
     }
-    function mueve() {
-      for (var fig of figuras) {
-        fig.muévete();
+
+    function volverAJugar(){
+      volverJugar.style.display = "none";
+      iniciar();
+    }
+    
+    function iniciar(){
+    
+      letretoPuntuacion.style.display = "block";
+      
+      document.body.append(batman);
+
+      function crearJokers(velocidad){
+        let anchoVentana = window.innerWidth;
+        let jokersAncho = Math.floor(anchoVentana/200);
+        for(let fila=1;fila<=2;fila++){
+          let posY = fila*100;
+          for(let j=0;j<jokersAncho;j++){
+            let posX = 200*j;
+            let newJoker = new Joker(posX,posY,velocidad);
+            document.body.append(newJoker);
+            todosJokers.push(newJoker);
+          }  
+        }
       }
+
+      crearJokers(velocidadJokers);
+
+      function moverJokers(){
+        checarOrillasJoker();
+        colisionJokersBatman();
+        for (let joker of todosJokers) {
+          joker.muévete(direccionJokers);    
+        }
+      }
+
+      function checarOrillasJoker(){
+        for (let joker of todosJokers) {
+          if(joker.checarOrillas()){
+            for(let j of todosJokers){
+              j.bajarJoker();
+            }
+            direccionJokers *= -1
+            break;
+          }  
+        }
+      }
+      
+      function seTocan(e1,e2){
+        const rE1 =
+        e1.getBoundingClientRect();
+        const rE2 =
+        e2.getBoundingClientRect();
+        return (rE1.right >= rE2.left &&
+        rE1.left <= rE2.right &&
+        rE1.top <= rE2.bottom &&
+        rE1.bottom >= rE2.top
+        );
+      }
+    
+      let correrJuego = setInterval(function(){
+        batmanActualizar();
+        batarangsActualizar();
+        moverJokers();
+      },56);
+
+      function batmanActualizar(){
+        batman.muévete();
+      }
+
+      function batarangsActualizar(){
+        for(let b=0;b<todosBatarang.length;b++){
+          todosBatarang[b].muévete();
+          let checandoBorde = todosBatarang[b].checarBorde();
+          if(checandoBorde){
+            todosBatarang.splice(b,1);
+          }else{
+            colisionJokerBatarang(todosBatarang[b],b);
+          }   
+        }
+      }
+
+      function colisionJokerBatarang(batarangActual,posicion){
+        for(let jokepos=0;jokepos<todosJokers.length;jokepos++){
+          if(seTocan(batarangActual,todosJokers[jokepos])){
+            document.body.removeChild(batarangActual);
+            todosBatarang.splice(posicion,1);
+            document.body.removeChild(todosJokers[jokepos]);
+            todosJokers.splice(jokepos,1);
+            puntuacion += 10;
+            total.textContent = ""+puntuacion;
+            if(todosJokers.length==0){
+              nivelActual += 1;
+              nivel.textContent = ""+nivelActual;
+              velocidadJokers += 0.5
+              crearJokers(velocidadJokers);
+              posFondoActual += 1;
+              if(posFondoActual>2){
+                posFondoActual = 0;
+              }
+              document.body.style.backgroundImage = "url('/imagen/"+fondos[posFondoActual]+"')";
+            }
+          }
+        }
+      }
+
+      function colisionJokersBatman(){
+        for(let j of todosJokers){
+          if(seTocan(batman,j)){
+            clearInterval(correrJuego);
+            resetear();
+            volverJugar.style.display = "block";
+          }
+        }
+      }
+
+      function resetear(){
+        for(let b of todosBatarang){
+          document.body.removeChild(b);
+        }
+        for(let j of todosJokers){
+          document.body.removeChild(j);
+        }
+        document.body.removeChild(batman);
+        todosBatarang = [];
+        todosJokers = [];
+        puntuacion = 0;
+        nivelActual = 1;
+        direccionJokers = 1;
+        velocidadJokers = 1;
+        total.textContent = ""+puntuacion;
+        nivel.textContent = ""+nivelActual;
+      }
+    
+      window.addEventListener("keydown",(e)=>{
+        if(e.keyCode == 37){
+            batman.moverIzquierda = true;
+        }
+        else if(e.keyCode == 39){
+            batman.moverDerecha = true;
+        }
+        else if(e.keyCode == 32){
+          if(todosBatarang.length < 3){
+            let batarangNuevo = new Batarang(batman.obtenerX);
+            document.body.append(batarangNuevo);
+            todosBatarang.push(batarangNuevo);
+          } 
+        }
+      });
+      
+      window.addEventListener("keyup",(e)=>{
+        if(e.keyCode == 37){
+            batman.moverIzquierda = false;
+        }
+        else if(e.keyCode == 39){
+            batman.moverDerecha = false;
+        }
+      });
     }
   </script>
+ 
 </body>
 </html>
