@@ -215,10 +215,16 @@
 
       function checarOrillasJoker(){
         for (let joker of todosJokers) {
+          if((joker.y +60) >= window.innerHeight){
+            clearInterval(correrJuego);
+            resetear();
+            volverJugar.style.display = "block";
+            break;
+          }
           if(joker.checarOrillas()){
             for(let j of todosJokers){
               j.bajarJoker();
-            }
+            } 
             direccionJokers *= -1
             break;
           }  
