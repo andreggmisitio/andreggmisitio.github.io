@@ -39,7 +39,6 @@
         //IZQUIERDA
         if(this.moverIzquierda){
           this.x = (this.x + 15) % window.innerWidth;
-          console.log(this.x,window.innerWidth);
           this.style.right = `${this.x}px`;
         }
       
@@ -49,7 +48,6 @@
           if(this.x < -200){
             this.x = window.innerWidth - 200;   
           }
-          console.log(this.x,window.innerWidth);
           this.style.right = `${this.x}px`;
         }      
       }
@@ -76,7 +74,6 @@
 
       checarBorde(){
         if(this.y > window.innerHeight){
-          console.log("Salio del borde")
           return true;
         }
       }
